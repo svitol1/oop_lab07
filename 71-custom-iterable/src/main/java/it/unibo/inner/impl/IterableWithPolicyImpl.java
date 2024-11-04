@@ -1,8 +1,8 @@
 package it.unibo.inner.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import it.unibo.inner.api.IterableWithPolicy;
@@ -10,7 +10,7 @@ import it.unibo.inner.api.Predicate;
 
 public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T>{
     
-    private List<T> elementsToFilter = new ArrayList<>();
+    private final List<T> elementsToFilter;
     private Predicate<T> filter;
 
     public IterableWithPolicyImpl(T[] elements, Predicate<T> filter) {
@@ -35,25 +35,26 @@ public class IterableWithPolicyImpl<T> implements IterableWithPolicy<T>{
 
     private class InnerIterator implements Iterator<T>{
 
-        private int index = -1;
+        private int index = 0;
 
         @Override
         public boolean hasNext() {
-            return elementsToFilter.size() - 1 > this.index;
+            while (elementsToFilter.size() > index) {
+                if (filter.test(elementsToFilter.get(index))) {
+                    return true;
+                }
+                this.index++;
+            }
+            return false;
         }
 
         @Override
         public T next() {
-
-            while (hasNext()) {
-                this.index++;
-
-                if( !filter.test(elementsToFilter.get(index)) ){
-                    return elementsToFilter.get(index);
-                }
+            if (hasNext()) {
+                return elementsToFilter.get(this.index++);
             }
 
-            throw new IndexOutOfBoundsException("Finished filtering the list");
+            throw new NoSuchElementException();
         }
    }     
 
