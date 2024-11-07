@@ -16,6 +16,10 @@ public interface Function<I, O> {
      */
     O call(I input);
 
+    /* 
+     * 1) perché `identity()` è un metodo, e non una costante `public static`?
+     * ???????
+    */
     /**
      * Returns the identity function, which returns the same object that is provided as input.
      *
@@ -23,7 +27,13 @@ public interface Function<I, O> {
      * @param <T> the input (and output) type of the function
      */
     static <T> Function<T, T> identity() {
-        return null;
+        return new Function<T,T>() {
+
+            @Override
+            public T call(T input) {
+                return input;
+            }
+        };
     }
 
 }
